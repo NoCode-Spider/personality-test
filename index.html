@@ -96,14 +96,14 @@
 
   /* ====== 水印 ====== */
   .wm-top {
-    position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); right: 18px;
-    font-size: 12px; color: rgba(184,154,255,0.25); z-index: 999; pointer-events: none;
-    letter-spacing: 2px; font-weight: 600;
+    position: fixed; top: calc(env(safe-area-inset-top, 0px) + 8px); right: 14px;
+    font-size: 11px; color: rgba(184,154,255,0.2); z-index: 999; pointer-events: none;
+    letter-spacing: 1px; font-weight: 600;
   }
   .wm-bottom {
-    position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 8px); left: 50%;
-    transform: translateX(-50%); font-size: 11px; color: rgba(184,154,255,0.18);
-    white-space: nowrap; z-index: 999; pointer-events: none; letter-spacing: 2px;
+    position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 4px); left: 50%;
+    transform: translateX(-50%); font-size: 10px; color: rgba(184,154,255,0.12);
+    white-space: nowrap; z-index: 999; pointer-events: none; letter-spacing: 1px;
   }
 
   .app { position: relative; z-index: 1; min-height: 100vh; max-width: 480px; margin: 0 auto; padding-bottom: 60px; }
@@ -411,7 +411,7 @@
   .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(184,154,255,0.15), transparent); margin: 32px 0; }
 
   /* ====== 响应式适配 ====== */
-  .home-title { font-size: clamp(36px, 10vw, 52px); white-space: nowrap; }
+  .home-title { font-size: clamp(28px, 7.5vw, 48px); line-height: 1.2; word-break: keep-all; overflow-wrap: break-word; }
   .home-badge { font-size: clamp(11px, 3vw, 13px); padding: clamp(8px, 2vw, 10px) clamp(20px, 6vw, 28px); }
   .home-sub { font-size: clamp(14px, 4vw, 16px); }
   .disclaimer { font-size: clamp(10px, 2.8vw, 11px); max-width: 100%; }
@@ -1260,15 +1260,13 @@ function choose(i) {
   // 更新下一题按钮
   document.getElementById('nextBtn').disabled = false;
 
-  // 自动进入下一题
-  setTimeout(() => {
-    if (qIdx < QUESTIONS.length - 1) {
+  // 自动进入下一题（最后一题不自动跳转，需手动点击"生成报告"）
+  if (qIdx < QUESTIONS.length - 1) {
+    setTimeout(() => {
       qIdx++;
       renderQ();
-    } else {
-      startGenerating();
-    }
-  }, 350);
+    }, 350);
+  }
 }
 
 function goPrev() {
@@ -1543,7 +1541,7 @@ function drawRadar(sorted) {
       const y = cy + Math.sin(a)*lr;
       const p = PERSONALITIES[sorted[i][0]];
 
-      ctx.font = '700 18px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.font = '700 22px "PingFang SC", "Microsoft YaHei", sans-serif';
       ctx.fillStyle = p.color;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -1618,7 +1616,7 @@ function saveResultImage() {
       const topKey = sorted[0][0];
       const top = PERSONALITIES[topKey];
 
-      const W = 750, H = 1750;
+      const W = 750, H = 1550;
       const canvas = document.createElement('canvas');
       canvas.width = W;
       canvas.height = H;
@@ -1643,7 +1641,10 @@ function saveResultImage() {
         ctx.fill();
       }
 
-      let y = 80;
+      let y = 60;
+
+      // 顶部留白
+      y += 30;
 
       // 测试名称标题
       ctx.font = '700 28px "PingFang SC", "Microsoft YaHei", sans-serif';
@@ -1671,22 +1672,21 @@ function saveResultImage() {
       nameGrad.addColorStop(1, '#b89aff');
       ctx.fillStyle = nameGrad;
       ctx.fillText(top.en, W/2, y + 20);
-      y += 90;
+      y += 75;
 
       // 人格中文名
-      ctx.font = '700 40px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.font = '700 36px "PingFang SC", "Microsoft YaHei", sans-serif';
       ctx.fillStyle = top.color;
       ctx.fillText(top.name, W/2, y);
-      y += 50;
+      y += 40;
 
       // 金句
-      ctx.font = '400 18px "PingFang SC", sans-serif';
+      ctx.font = '400 16px "PingFang SC", sans-serif';
       ctx.fillStyle = '#b8b0d8';
       ctx.textAlign = 'center';
-      // 换行处理
       const quote = top.quote;
       ctx.fillText(quote, W/2, y);
-      y += 50;
+      y += 35;
 
       // 分隔线
       ctx.strokeStyle = 'rgba(255,217,122,0.15)';
@@ -1695,34 +1695,34 @@ function saveResultImage() {
       ctx.moveTo(100, y);
       ctx.lineTo(W - 100, y);
       ctx.stroke();
-      y += 40;
+      y += 30;
 
       // 人格画像 - 截取前150字
       ctx.textAlign = 'left';
-      ctx.font = '700 20px "PingFang SC", sans-serif';
+      ctx.font = '700 18px "PingFang SC", sans-serif';
       ctx.fillStyle = '#ffd97a';
       ctx.fillText('人格画像', 60, y);
-      y += 36;
+      y += 30;
 
-      ctx.font = '400 16px "PingFang SC", sans-serif';
+      ctx.font = '400 15px "PingFang SC", sans-serif';
       ctx.fillStyle = '#f0ecff';
-      const descText = top.desc.length > 150 ? top.desc.substring(0, 150) + '...' : top.desc;
+      const descText = top.desc.length > 120 ? top.desc.substring(0, 120) + '...' : top.desc;
       const descLines = wrapText(ctx, descText, W - 120);
-      descLines.forEach(line => { ctx.fillText(line, 60, y); y += 28; });
-      y += 20;
+      descLines.forEach(line => { ctx.fillText(line, 60, y); y += 24; });
+      y += 15;
 
-      // 隐藏特质 - 截取前150字
-      ctx.font = '700 20px "PingFang SC", sans-serif';
+      // 隐藏特质 - 截取前120字
+      ctx.font = '700 18px "PingFang SC", sans-serif';
       ctx.fillStyle = '#ffd97a';
       ctx.fillText('隐藏特质', 60, y);
-      y += 36;
-
-      ctx.font = '400 16px "PingFang SC", sans-serif';
-      ctx.fillStyle = '#f0ecff';
-      const traitsText = top.traits.length > 150 ? top.traits.substring(0, 150) + '...' : top.traits;
-      const traitLines = wrapText(ctx, traitsText, W - 120);
-      traitLines.forEach(line => { ctx.fillText(line, 60, y); y += 28; });
       y += 30;
+
+      ctx.font = '400 15px "PingFang SC", sans-serif';
+      ctx.fillStyle = '#f0ecff';
+      const traitsText = top.traits.length > 120 ? top.traits.substring(0, 120) + '...' : top.traits;
+      const traitLines = wrapText(ctx, traitsText, W - 120);
+      traitLines.forEach(line => { ctx.fillText(line, 60, y); y += 24; });
+      y += 20;
 
       // 雷达图
       ctx.font = '700 20px "PingFang SC", sans-serif';
@@ -1731,9 +1731,9 @@ function saveResultImage() {
       ctx.fillText('人格雷达图', 60, y);
       y += 20;
 
-      const radarR = 140;
+      const radarR = 120;
       const rCx = W / 2;
-      const rCy = y + radarR + 20;
+      const rCy = y + radarR + 15;
       const rN = 10;
       const rAngleStep = (Math.PI * 2) / rN;
       const rMax = sorted[0][1] || 1;
@@ -1800,7 +1800,7 @@ function saveResultImage() {
       }
 
       // 标签 - 中文
-      ctx.font = '600 16px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.font = '600 18px "PingFang SC", "Microsoft YaHei", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       for (let i = 0; i < rN; i++) {
@@ -1813,26 +1813,26 @@ function saveResultImage() {
         ctx.fillText(p.name, x, yy);
       }
 
-      y = rCy + radarR + 50;
+      y = rCy + radarR + 40;
 
       // 核心优势
       ctx.textAlign = 'left';
-      ctx.font = '700 20px "PingFang SC", sans-serif';
+      ctx.font = '700 18px "PingFang SC", sans-serif';
       ctx.fillStyle = '#ffd97a';
       ctx.fillText('核心优势', 60, y);
-      y += 36;
+      y += 30;
 
-      ctx.font = '400 15px "PingFang SC", sans-serif';
+      ctx.font = '400 14px "PingFang SC", sans-serif';
       ctx.fillStyle = '#f0ecff';
       const strengthLines = wrapText(ctx, top.strength, W - 120);
-      strengthLines.forEach(line => { ctx.fillText(line, 60, y); y += 26; });
-      y += 20;
+      strengthLines.forEach(line => { ctx.fillText(line, 60, y); y += 24; });
+      y += 15;
 
       // 职业天赋标签
-      ctx.font = '700 20px "PingFang SC", sans-serif';
+      ctx.font = '700 18px "PingFang SC", sans-serif';
       ctx.fillStyle = '#ffd97a';
       ctx.fillText('职业天赋', 60, y);
-      y += 36;
+      y += 30;
 
       ctx.font = '600 14px "PingFang SC", sans-serif';
       let tagX = 60;
@@ -1849,7 +1849,7 @@ function saveResultImage() {
         ctx.textAlign = 'left';
         tagX += tw + 10;
       });
-      y += 50;
+      y += 35;
 
       // 更多有趣测试引导
       y += 10;
