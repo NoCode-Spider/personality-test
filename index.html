@@ -648,24 +648,24 @@
       <h3 style="font-family:var(--serif);font-size:20px;color:var(--gold);margin-bottom:8px;letter-spacing:2px;">分享给朋友</h3>
       <p style="font-size:14px;color:var(--text-2);margin-bottom:24px;">选择分享方式</p>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
-        <a class="share-item" href="javascript:void(0)" onclick="shareTo('weixin')">
+        <div class="share-item" style="cursor:pointer;" onclick="shareTo('weixin')">
           <div class="share-icon" style="background:#07c160;">
             <svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M8.5 11.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm5 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM12 2C6.48 2 2 5.58 2 10c0 2.24 1.12 4.27 2.94 5.74L4 19l3.5-1.86C8.56 17.7 10.25 18 12 18c5.52 0 10-3.58 10-8s-4.48-8-10-8z"/></svg>
           </div>
           <span>微信好友</span>
-        </a>
-        <a class="share-item" href="javascript:void(0)" onclick="shareTo('qq')">
+        </div>
+        <div class="share-item" style="cursor:pointer;" onclick="shareTo('qq')">
           <div class="share-icon" style="background:#12b7f5;">
             <svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.5 14l-1-2.5 1-.5c1-.5 1.5-1.5 1.5-2.5l-.5-1.5c-.5-.5-1.5-1-2.5-1h-4c-1 0-2 .5-2.5 1l-.5 1.5c0 1 .5 2 1.5 2.5l1 .5-1 2.5L6 14.5c.5 1 1.5 2 3 2.5l-.5 2.5h7l-.5-2.5c1.5-.5 2.5-1.5 3-2.5L15.5 16z"/></svg>
           </div>
           <span>QQ好友</span>
-        </a>
-        <a class="share-item" href="javascript:void(0)" onclick="shareTo('copy')">
+        </div>
+        <div class="share-item" style="cursor:pointer;" onclick="shareTo('copy')">
           <div class="share-icon" style="background:linear-gradient(135deg,#ffd97a,#f472b6);">
             <svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
           </div>
           <span>复制链接</span>
-        </a>
+        </div>
       </div>
       <p style="font-size:13px;color:var(--text-3);margin-top:20px;line-height:1.6;">在微信/QQ内打开可直接分享<br>在其他浏览器可复制链接分享</p>
     </div>
@@ -1166,25 +1166,37 @@ function showXhsModal() {
 function goToXhs() {
   var keyword = encodeURIComponent('小彧资料');
   var webUrl = 'https://www.xiaohongshu.com/search_result?keyword=' + keyword;
+  var appUrl = 'xhsdiscover://search_result?keyword=' + keyword;
 
   // 隐藏弹窗
   hideModal('xhsModal');
 
-  // 直接跳转到小红书搜索页
-  // 手机端会尝试打开App，如果没有App则打开网页版
-  try {
-    // 先尝试通过 a 标签跳转（兼容性最好）
-    var a = document.createElement('a');
-    a.href = webUrl;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  } catch(e) {
-    // 降级方案
-    window.location.href = webUrl;
-  }
+  // 尝试唤起 App，1.5秒后如果还在当前页面则跳网页版
+  var hasApp = false;
+
+  // 方案1: location.href 直接跳转（手机端最可靠）
+  // 尝试打开 App
+  var iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.src = appUrl;
+  document.body.appendChild(iframe);
+
+  // 1.5秒后检查是否还在当前页面
+  setTimeout(function() {
+    document.body.removeChild(iframe);
+    if (!hasApp) {
+      // 如果 App 没有打开，跳转到网页版
+      // 在微信内可能被拦截，尝试用 location.href
+      window.location.href = webUrl;
+    }
+  }, 1500);
+
+  // 如果 App 成功打开了，visibilitychange 会触发
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+      hasApp = true;
+    }
+  }, { once: true });
 }
 function hideModal(id) {
   document.getElementById(id).classList.remove('active');
@@ -1574,25 +1586,26 @@ function shareTo(platform) {
   var desc = '我测了一下超准！快来看看你的隐藏人格～';
 
   if (platform === 'weixin') {
-    // 微信内打开：尝试 WeixinJSBridge 分享
+    // 微信内：尝试 WeixinJSBridge
     if (typeof WeixinJSBridge !== 'undefined' && WeixinJSBridge.invoke) {
-      WeixinJSBridge.invoke('shareTimeline', {
-        title: title,
-        link: url,
-        desc: desc
-      });
+      try {
+        WeixinJSBridge.invoke('shareTimeline', { title: title, link: url, desc: desc });
+      } catch(e) {
+        copyAndHint('链接已复制，打开微信粘贴给好友即可分享～');
+      }
     } else {
-      // 非微信环境：复制链接提示用户去微信分享
+      // 非微信环境：复制链接，提示去微信
       copyAndHint('链接已复制，打开微信粘贴给好友即可分享～');
     }
   } else if (platform === 'qq') {
-    // QQ 分享
+    // QQ 分享 — 用 location.href 而非 window.open（兼容性更好）
     var qqUrl = 'https://connect.qq.com/widget/shareqq/index.html?url=' + encodeURIComponent(url) + '&title=' + encodeURIComponent(title) + '&desc=' + encodeURIComponent(desc);
-    window.open(qqUrl, '_blank');
     hideModal('shareModal');
+    setTimeout(function() {
+      window.location.href = qqUrl;
+    }, 200);
   } else if (platform === 'copy') {
     copyAndHint('链接已复制，快去分享给朋友吧～');
-    hideModal('shareModal');
   }
 }
 
@@ -1657,7 +1670,6 @@ function saveResultImage() {
         { title: '核心优势', body: top.strength },
         { title: '盲区与挑战', body: top.blindspot },
       ];
-      ctx.font = '700 22px "PingFang SC", sans-serif';
       // estimate lines per section
       const tmpCanvas = document.createElement('canvas');
       const tmpCtx = tmpCanvas.getContext('2d');
