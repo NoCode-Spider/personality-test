@@ -40,11 +40,11 @@
     font-size: 16px;
   }
 
-  /* ====== 深空背景 ====== */
+  /* ====== 深空背景 - 曲速飞行效果 ====== */
   .cosmos {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     z-index: 0; overflow: hidden; pointer-events: none;
-    perspective: 600px; perspective-origin: 50% 60%;
+    perspective: 400px; perspective-origin: 50% 50%;
   }
   .cosmos::before {
     content: ''; position: absolute; inset: 0;
@@ -65,15 +65,15 @@
   @keyframes nebula-drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(30px,-20px) scale(1.1); } }
 
   .stars-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform-style: preserve-3d; }
-  .star-3d { position: absolute; background: white; border-radius: 50%; animation: star-float linear infinite; }
+  .star-3d { position: absolute; background: white; border-radius: 50%; animation: star-warp linear infinite; }
   .star-3d.far { opacity: 0.3; }
   .star-3d.mid { opacity: 0.6; }
   .star-3d.near { opacity: 0.9; box-shadow: 0 0 6px currentColor; }
-  @keyframes star-float {
-    0% { transform: translateY(110vh) scale(0); opacity: 0; }
-    10% { opacity: 1; transform: translateY(95vh) scale(1); }
-    90% { opacity: 1; }
-    100% { transform: translateY(-20vh) scale(0.5); opacity: 0; }
+  @keyframes star-warp {
+    0% { transform: translate(-50%, -50%) translateZ(-800px) scale(0.1); opacity: 0; }
+    10% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) translateZ(400px) scale(3); opacity: 0; }
   }
 
   /* 流星 - 斜向滑落，真实流星轨迹 */
@@ -140,38 +140,61 @@
     background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04);
   }
 
-  /* === 星盘 === */
-  .star-wheel { position: relative; width: 360px; height: 360px; margin: 40px auto; }
+  /* === 神秘罗盘 === */
+  .star-wheel { position: relative; width: clamp(280px, 75vw, 380px); height: clamp(280px, 75vw, 380px); margin: 40px auto; }
   .orbit { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%,-50%); border: 1px solid; }
-  .orbit.o1 { width: 350px; height: 350px; border-color: rgba(184,154,255,0.08); box-shadow: inset 0 0 60px rgba(139,92,246,0.05); }
-  .orbit.o2 { width: 280px; height: 280px; border-color: rgba(255,217,122,0.1); animation: rotate-cw 40s linear infinite; }
-  .orbit.o3 { width: 210px; height: 210px; border-color: rgba(244,114,182,0.08); animation: rotate-ccw 35s linear infinite; }
-  .orbit.o4 { width: 140px; height: 140px; border-color: rgba(96,165,250,0.1); animation: rotate-cw 30s linear infinite; }
+  .orbit.o1 { width: 100%; height: 100%; border-color: rgba(184,154,255,0.08); box-shadow: inset 0 0 60px rgba(139,92,246,0.05); }
+  .orbit.o2 { width: 80%; height: 80%; border-color: rgba(255,217,122,0.1); animation: rotate-cw 40s linear infinite; }
+  .orbit.o3 { width: 60%; height: 60%; border-color: rgba(244,114,182,0.08); animation: rotate-ccw 35s linear infinite; }
+  .orbit.o4 { width: 40%; height: 40%; border-color: rgba(96,165,250,0.1); animation: rotate-cw 30s linear infinite; }
   @keyframes rotate-cw { to { transform: translate(-50%,-50%) rotate(360deg); } }
   @keyframes rotate-ccw { to { transform: translate(-50%,-50%) rotate(-360deg); } }
   .orbit::before, .orbit::after { content: ''; position: absolute; border-radius: 50%; }
   .orbit.o2::before { top: -3px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background: var(--gold); box-shadow: 0 0 12px var(--gold), 0 0 20px var(--gold); }
   .orbit.o2::after { bottom: -3px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; background: var(--purple); box-shadow: 0 0 10px var(--purple); }
   .orbit.o3::before { top: -3px; right: 30%; width: 4px; height: 4px; background: var(--pink); box-shadow: 0 0 8px var(--pink); }
-  .orbit.o3::after { bottom: -2px; left: 25%; width: 3px; height: 3px; background: var(--blue); box-shadow: 0 0 6px var(--blue); }
+  .orbit.o3::after { bottom: -2px; left: 25%; width: 3px; height: 3px; background: #60a5fa; box-shadow: 0 0 6px #60a5fa; }
 
+  /* 神秘中心 - 无文字，旋转发光 */
   .wheel-center {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-    width: 100px; height: 100px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,217,122,0.15), transparent 70%);
+    width: 30%; height: 30%; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,217,122,0.2), rgba(139,92,246,0.08) 50%, transparent 80%);
     display: flex; align-items: center; justify-content: center;
-    font-family: var(--serif); font-size: 20px; font-weight: 700;
-    color: var(--gold); letter-spacing: 3px; text-align: center;
+    animation: pulse-glow 3s ease-in-out infinite;
   }
-  .wheel-center span { animation: pulse-glow 3s ease-in-out infinite; }
-  @keyframes pulse-glow { 0%, 100% { opacity: 0.6; text-shadow: 0 0 20px rgba(255,217,122,0.3); } 50% { opacity: 1; text-shadow: 0 0 30px rgba(255,217,122,0.6); } }
+  .wheel-center::before {
+    content: ''; position: absolute; inset: 20%; border-radius: 50%;
+    border: 1px solid rgba(255,217,122,0.3);
+    animation: rotate-cw 8s linear infinite;
+  }
+  .wheel-center::after {
+    content: ''; position: absolute; inset: 35%; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,217,122,0.4), transparent 70%);
+    filter: blur(8px);
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+  @keyframes pulse-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
-  .wheel-item {
-    position: absolute; display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  /* 罗盘指针 - 细长三角形旋转 */
+  .compass-needle-static {
+    position: absolute; top: 50%; left: 50%; width: 2px; height: 35%;
+    transform-origin: bottom center;
+    transform: translate(-50%, -100%);
+    background: linear-gradient(180deg, rgba(255,217,122,0.8), transparent);
+    border-radius: 2px;
+    animation: rotate-needle 12s linear infinite;
   }
-  .wi-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .wi-name {
-    font-family: var(--serif); font-size: 13px; font-weight: 700; letter-spacing: 1px;
+  .compass-needle-static::after {
+    content: ''; position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--gold); box-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold);
+  }
+  @keyframes rotate-needle { to { transform: translate(-50%, -100%) rotate(360deg); } }
+
+  /* 罗盘上的神秘符号点 */
+  .mystery-dot {
+    position: absolute; border-radius: 50%; animation: pulse-glow 4s ease-in-out infinite;
   }
 
   .home-stats { display: flex; justify-content: center; gap: 40px; margin: 40px 0; }
@@ -386,6 +409,61 @@
   }
 
   .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(184,154,255,0.15), transparent); margin: 32px 0; }
+
+  /* ====== 响应式适配 ====== */
+  .home-title { font-size: clamp(36px, 10vw, 52px); white-space: nowrap; }
+  .home-badge { font-size: clamp(11px, 3vw, 13px); padding: clamp(8px, 2vw, 10px) clamp(20px, 6vw, 28px); }
+  .home-sub { font-size: clamp(14px, 4vw, 16px); }
+  .disclaimer { font-size: clamp(10px, 2.8vw, 11px); max-width: 100%; }
+  .hs-num { font-size: clamp(28px, 8vw, 36px); }
+  .hs-label { font-size: clamp(11px, 3vw, 13px); }
+  .home-stats { gap: clamp(24px, 8vw, 40px); }
+  .home-page { padding: clamp(50px, 12vh, 80px) clamp(20px, 5vw, 28px) 30px; }
+
+  .q-text { font-size: clamp(20px, 5.5vw, 24px); }
+  .opt-txt { font-size: clamp(14px, 3.8vw, 16px); }
+  .opt-num { width: clamp(32px, 9vw, 36px); height: clamp(32px, 9vw, 36px); font-size: clamp(14px, 4vw, 16px); }
+  .quiz-count { font-size: clamp(16px, 4.5vw, 18px); }
+  .quiz-page { padding: clamp(40px, 8vh, 60px) clamp(18px, 5vw, 24px) 30px; }
+
+  .r-name { font-size: clamp(30px, 8vw, 38px); }
+  .r-icon-text { font-size: clamp(22px, 6vw, 28px); }
+  .r-quote { font-size: clamp(14px, 4vw, 16px); max-width: 100%; }
+  .rs-title { font-size: clamp(16px, 4.5vw, 18px); }
+  .rs-text { font-size: clamp(14px, 3.8vw, 16px); }
+  .result-section { margin: 0 clamp(16px, 5vw, 24px) 28px; padding: clamp(20px, 5vw, 28px) clamp(18px, 5vw, 24px); }
+  .result-hero { padding: 0 clamp(18px, 5vw, 28px) 40px; }
+  .result-page { padding: clamp(40px, 8vh, 60px) 0 30px; }
+  .result-actions { padding: 0 clamp(18px, 5vw, 24px) 40px; }
+
+  .rank-label { font-size: clamp(13px, 3.5vw, 15px); width: clamp(70px, 22vw, 90px); }
+  .rank-score { font-size: clamp(16px, 4.5vw, 18px); }
+  .lucky-grid { grid-template-columns: repeat(3, 1fr); gap: clamp(8px, 2.5vw, 12px); }
+  .li-value { font-size: clamp(14px, 3.8vw, 16px); }
+
+  /* 雷达图容器响应式 */
+  .radar-wrap { width: 100%; overflow: visible; }
+  #radarCanvas { width: 100%; max-width: 100%; height: auto; }
+
+  /* 按钮响应式 */
+  .btn-start { font-size: clamp(16px, 4.5vw, 18px); padding: clamp(15px, 4vw, 18px) 0; max-width: 100%; }
+  .btn-secondary { font-size: clamp(13px, 3.8vw, 15px); padding: clamp(12px, 3.5vw, 14px) 0; max-width: 100%; }
+
+  /* 弹窗响应式 */
+  .modal { max-width: 100%; padding: clamp(24px, 6vw, 36px) clamp(20px, 5vw, 28px); }
+  .modal-title { font-size: clamp(18px, 5vw, 22px); }
+  .modal-input { font-size: clamp(18px, 5vw, 20px); padding: clamp(14px, 4vw, 16px) clamp(16px, 4.5vw, 20px); }
+
+  /* 超窄屏 */
+  @media (max-width: 350px) {
+    .home-stats { gap: 20px; }
+    .lucky-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* 超宽屏 */
+  @media (min-width: 500px) {
+    .app { max-width: 500px; }
+  }
 </style>
 </head>
 <body>
@@ -406,7 +484,7 @@
   <div class="page active" id="page-home">
     <div class="home-page">
       <div class="home-badge">深度人格探索</div>
-      <h1 class="home-title">你的隐藏人格<br>是什么？</h1>
+      <h1 class="home-title">你的隐藏人格是什么？</h1>
       <p class="home-sub">在每个人的内心深处<br>都藏着一个不为人知的自己</p>
 
       <div class="disclaimer">本测试仅供娱乐参考，不构成专业心理诊断。如有心理健康方面需求，请及时咨询专业医疗机构。</div>
@@ -416,7 +494,8 @@
         <div class="orbit o2"></div>
         <div class="orbit o3"></div>
         <div class="orbit o4"></div>
-        <div class="wheel-center"><span>10</span></div>
+        <div class="compass-needle-static"></div>
+        <div class="wheel-center"></div>
       </div>
 
       <div class="home-stats">
@@ -563,7 +642,7 @@
       <p>在小红书搜索</p>
       <p style="font-size:20px;font-weight:700;color:var(--gold);margin:12px 0;">小彧资料</p>
       <p>即可获取更多有趣的心理测试</p>
-      <a class="xhs-btn" href="https://www.xiaohongshu.com/search_result?keyword=小彧资料" target="_blank">去小红书搜索</a>
+      <a class="xhs-btn" href="javascript:void(0)" onclick="goToXhs()">去小红书搜索</a>
     </div>
   </div>
 </div>
@@ -996,9 +1075,9 @@ function resetScores() {
 // ==============================
 function createStars() {
   const layer = document.getElementById('starsLayer');
-  const counts = [60, 35, 15];
+  const counts = [80, 40, 15];
   const classes = ['far', 'mid', 'near'];
-  const durations = [25, 18, 12];
+  const durations = [20, 15, 10];
 
   for (let l = 0; l < 3; l++) {
     for (let i = 0; i < counts[l]; i++) {
@@ -1007,9 +1086,11 @@ function createStars() {
       const size = l === 0 ? (Math.random()*1.5+0.5) : l === 1 ? (Math.random()*1.5+1) : (Math.random()*2+1.5);
       s.style.width = size + 'px';
       s.style.height = size + 'px';
+      // Stars start at random positions (they expand outward toward viewer)
       s.style.left = Math.random()*100 + '%';
-      s.style.animationDuration = (durations[l]+Math.random()*10) + 's';
-      s.style.animationDelay = (Math.random()*20) + 's';
+      s.style.top = Math.random()*100 + '%';
+      s.style.animationDuration = (durations[l]+Math.random()*8) + 's';
+      s.style.animationDelay = (Math.random()*15) + 's';
       const colors = ['#ffffff','#ffd97a','#b89aff','#f472b6','#60a5fa'];
       const c = colors[Math.floor(Math.random()*colors.length)];
       s.style.background = c;
@@ -1035,24 +1116,25 @@ function createStars() {
 function renderWheel() {
   const wheel = document.getElementById('starWheel');
   const keys = PERSONALITY_KEYS;
-  const radius = 155;
-  const cx = 180, cy = 180;
 
+  // Add mysterious glowing dots on the outer orbit, no text labels
   keys.forEach((key, i) => {
     const angle = (i / keys.length) * Math.PI * 2 - Math.PI / 2;
-    const x = cx + Math.cos(angle) * radius;
-    const y = cy + Math.sin(angle) * radius;
     const p = PERSONALITIES[key];
-    const div = document.createElement('div');
-    div.className = 'wheel-item';
-    div.innerHTML = `<span class="wi-dot" style="background:${p.color};color:${p.color};box-shadow:0 0 8px ${p.color}"></span><span class="wi-name" style="background:linear-gradient(135deg,${p.color},#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${p.en}</span>`;
-    div.style.left = (x - 50) + 'px';
-    div.style.top = (y - 8) + 'px';
-    if (Math.cos(angle) < 0) {
-      div.style.flexDirection = 'row-reverse';
-      div.style.justifyContent = 'flex-end';
-    }
-    wheel.appendChild(div);
+    const dot = document.createElement('div');
+    dot.className = 'mystery-dot';
+    const size = 5 + Math.random() * 3;
+    dot.style.width = size + 'px';
+    dot.style.height = size + 'px';
+    // Position on the outer ring using percentage
+    const px = 50 + Math.cos(angle) * 47;
+    const py = 50 + Math.sin(angle) * 47;
+    dot.style.left = `calc(${px}% - ${size/2}px)`;
+    dot.style.top = `calc(${py}% - ${size/2}px)`;
+    dot.style.background = p.color;
+    dot.style.boxShadow = `0 0 8px ${p.color}, 0 0 16px ${p.color}`;
+    dot.style.animationDelay = (i * 0.3) + 's';
+    wheel.appendChild(dot);
   });
 }
 
@@ -1076,6 +1158,26 @@ function showAuthModal() {
 }
 function showXhsModal() {
   document.getElementById('xhsModal').classList.add('active');
+}
+function goToXhs() {
+  var keyword = encodeURIComponent('小彧资料');
+  var appUrl = 'xhsdiscover://search_result?keyword=' + keyword;
+  var webUrl = 'https://www.xiaohongshu.com/search_result?keyword=' + keyword;
+
+  // 尝试唤起小红书 App
+  var start = Date.now();
+  var iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.src = appUrl;
+  document.body.appendChild(iframe);
+
+  setTimeout(function() {
+    document.body.removeChild(iframe);
+    // 如果 2 秒内没有跳转，打开网页版
+    if (Date.now() - start < 2200) {
+      window.open(webUrl, '_blank');
+    }
+  }, 2000);
 }
 function hideModal(id) {
   document.getElementById(id).classList.remove('active');
@@ -1427,11 +1529,11 @@ function drawRadar(sorted) {
       ctx.lineWidth = 2.5;
       ctx.stroke();
 
-      ctx.font = 'bold 16px Georgia, serif';
+      ctx.font = 'bold 26px Georgia, serif';
       ctx.fillStyle = '#fff';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(Math.round(s), x, y - 20);
+      ctx.fillText(Math.round(s), x, y - 25);
     }
 
     for (let i = 0; i < N; i++) {
@@ -1441,7 +1543,7 @@ function drawRadar(sorted) {
       const y = cy + Math.sin(a)*lr;
       const p = PERSONALITIES[sorted[i][0]];
 
-      ctx.font = '700 15px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.font = '700 18px "PingFang SC", "Microsoft YaHei", sans-serif';
       ctx.fillStyle = p.color;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -1516,7 +1618,7 @@ function saveResultImage() {
       const topKey = sorted[0][0];
       const top = PERSONALITIES[topKey];
 
-      const W = 750, H = 1600;
+      const W = 750, H = 1750;
       const canvas = document.createElement('canvas');
       canvas.width = W;
       canvas.height = H;
@@ -1541,9 +1643,20 @@ function saveResultImage() {
         ctx.fill();
       }
 
-      let y = 90;
+      let y = 80;
 
-      // 标题
+      // 测试名称标题
+      ctx.font = '700 28px "PingFang SC", "Microsoft YaHei", sans-serif';
+      const titleGrad = ctx.createLinearGradient(W/2 - 200, 0, W/2 + 200, 0);
+      titleGrad.addColorStop(0, '#ffd97a');
+      titleGrad.addColorStop(0.5, '#f472b6');
+      titleGrad.addColorStop(1, '#b89aff');
+      ctx.fillStyle = titleGrad;
+      ctx.textAlign = 'center';
+      ctx.fillText('你的隐藏人格是什么？', W/2, y);
+      y += 45;
+
+      // 副标题
       ctx.font = '600 22px Georgia, serif';
       ctx.fillStyle = '#ffd97a';
       ctx.textAlign = 'center';
@@ -1687,7 +1800,7 @@ function saveResultImage() {
       }
 
       // 标签 - 中文
-      ctx.font = '600 14px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.font = '600 16px "PingFang SC", "Microsoft YaHei", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       for (let i = 0; i < rN; i++) {
@@ -1738,45 +1851,94 @@ function saveResultImage() {
       });
       y += 50;
 
+      // 更多有趣测试引导
+      y += 10;
+      ctx.font = '600 18px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.fillStyle = '#ffd97a';
+      ctx.textAlign = 'center';
+      ctx.fillText('更多有趣测试，在小红书搜索「小彧资料」', W/2, y);
+      y += 36;
+
       // 免责声明
       ctx.font = '400 12px "PingFang SC", sans-serif';
       ctx.fillStyle = 'rgba(122,112,154,0.6)';
       ctx.textAlign = 'center';
-      const disclaimerText = '本测试仅供娱乐参考，不构成专业心理评估或医疗建议。';
-      ctx.fillText(disclaimerText, W/2, y);
+      ctx.fillText('本测试仅供娱乐参考，不构成专业心理评估或医疗建议。', W/2, y);
       y += 20;
       ctx.fillText('如有心理或精神健康困扰，请及时咨询专业医疗机构。', W/2, y);
-      y += 40;
+      y += 30;
+
+      // 分隔线
+      ctx.strokeStyle = 'rgba(184,154,255,0.12)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(120, y);
+      ctx.lineTo(W - 120, y);
+      ctx.stroke();
+      y += 30;
 
       // 底部水印
-      ctx.font = 'bold 22px Georgia, serif';
-      ctx.fillStyle = 'rgba(255,217,122,0.5)';
+      ctx.font = 'bold 24px Georgia, serif';
+      ctx.fillStyle = 'rgba(255,217,122,0.6)';
       ctx.textAlign = 'center';
-      ctx.fillText('小彧资料', W/2, H - 60);
-      ctx.font = '400 14px "PingFang SC", sans-serif';
-      ctx.fillStyle = 'rgba(184,154,255,0.3)';
-      ctx.fillText('侵权必究 · 禁止搬运', W/2, H - 32);
+      ctx.fillText('小彧资料', W/2, y);
+      y += 20;
+      ctx.font = '400 13px "PingFang SC", sans-serif';
+      ctx.fillStyle = 'rgba(184,154,255,0.35)';
+      ctx.fillText('侵权必究 · 禁止搬运', W/2, y);
 
-      // 转为图片并显示
-      const dataUrl = canvas.toDataURL('image/png');
+      // 转为图片并显示 - 使用blob URL兼容微信
       wrap.innerHTML = '';
       const img = document.createElement('img');
-      img.src = dataUrl;
       img.style.maxWidth = '100%';
       img.style.borderRadius = '16px';
-      wrap.appendChild(img);
 
-      const hint = document.createElement('p');
-      hint.className = 'save-img-hint';
-      hint.innerHTML = '长按图片即可保存到相册';
-      wrap.appendChild(hint);
+      if (canvas.toBlob) {
+        canvas.toBlob(function(blob) {
+          var blobUrl = URL.createObjectURL(blob);
+          img.src = blobUrl;
 
-      const btn = document.createElement('a');
-      btn.className = 'save-download-btn';
-      btn.href = dataUrl;
-      btn.download = '隐藏人格测试结果.png';
-      btn.textContent = '下载图片';
-      wrap.appendChild(btn);
+          var btn = document.createElement('a');
+          btn.className = 'save-download-btn';
+          btn.textContent = '下载图片';
+          btn.addEventListener('click', function() {
+            // 尝试下载
+            try {
+              var a = document.createElement('a');
+              a.href = blobUrl;
+              a.download = '隐藏人格测试结果.png';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            } catch(e) {}
+          });
+          wrap.appendChild(img);
+
+          var hint = document.createElement('p');
+          hint.className = 'save-img-hint';
+          hint.innerHTML = '长按图片即可保存到相册<br>或点击下方按钮下载';
+          wrap.appendChild(hint);
+
+          wrap.appendChild(btn);
+        }, 'image/png');
+      } else {
+        // 降级方案 - data URL
+        var dataUrl = canvas.toDataURL('image/png');
+        img.src = dataUrl;
+        wrap.appendChild(img);
+
+        var hint = document.createElement('p');
+        hint.className = 'save-img-hint';
+        hint.innerHTML = '长按图片即可保存到相册';
+        wrap.appendChild(hint);
+
+        var btn = document.createElement('a');
+        btn.className = 'save-download-btn';
+        btn.href = dataUrl;
+        btn.download = '隐藏人格测试结果.png';
+        btn.textContent = '下载图片';
+        wrap.appendChild(btn);
+      }
 
     } catch(err) {
       wrap.innerHTML = '<p style="color:var(--text-2);font-size:14px;padding:20px;">图片生成出错：' + err.message + '</p>';
